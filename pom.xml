@@ -16,6 +16,8 @@
 	<properties>
 		<java.version>17</java.version>
 		<grpc.java.version>1.57.2</grpc.java.version>
+		<protobuf.serializer.version>7.4.0</protobuf.serializer.version>
+		<spring-kafka.version>3.0.11</spring-kafka.version>
 	</properties>
 
 	<repositories>
@@ -33,6 +35,7 @@
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
+			<version>${spring-kafka.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
@@ -42,7 +45,13 @@
 		<dependency>
 			<groupId>io.confluent</groupId>
 			<artifactId>kafka-protobuf-serializer</artifactId>
-			<version>7.4.0</version>
+			<version>${protobuf.serializer.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.ws.rs</groupId>
+					<artifactId>javax.ws.rs-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

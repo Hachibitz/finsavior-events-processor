@@ -50,6 +50,7 @@ public class KafkaConfig {
         //Configurar valor específico
         props.put(KafkaProtobufDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistry);
         props.put(KafkaProtobufDeserializerConfig.SPECIFIC_PROTOBUF_VALUE_TYPE, DeleteAccountRequest.class.getName());
+        props.put(KafkaProtobufDeserializerConfig.SPECIFIC_PROTOBUF_KEY_TYPE, keyDeserializer);
 
         return props;
     }

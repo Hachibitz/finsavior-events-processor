@@ -20,10 +20,9 @@ public class DeleteAccountConsumer {
     UserService userService;
 
     @KafkaHandler
-    public void DeleteAccount (@NotNull DeleteAccountRequest message) throws Exception {
-        DeleteAccountRequest deleteAccountRequest = message;
-        log.info("Mensagem recebida: "+deleteAccountRequest.toString());
-        boolean isDeleteSuccesful = userService.deleteAccount(deleteAccountRequest);
+    public void deleteAccount (@NotNull DeleteAccountRequest message) throws Exception {
+        log.info("Mensagem recebida: "+ message);
+        boolean isDeleteSuccesful = userService.deleteAccount(message);
 
         if(isDeleteSuccesful){
             //ack.acknowledge();
