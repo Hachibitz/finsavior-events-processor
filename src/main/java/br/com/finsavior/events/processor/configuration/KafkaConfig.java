@@ -1,8 +1,7 @@
 package br.com.finsavior.events.processor.configuration;
 
+import br.com.finsavior.events.processor.model.dto.WebhookRequestDTO;
 import br.com.finsavior.grpc.user.DeleteAccountRequest;
-import io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializerConfig;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +11,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,8 +32,8 @@ public class KafkaConfig {
     @Value("${spring.kafka.consumer.value-deserializer}")
     private String valueDeserializer;
 
-    @Value("${spring.kafka.properties.schema.registry.url}")
-    private String schemaRegistry;
+    @Value("${spring.kafka.consumer.properties.spring.json.trusted.packages}")
+    private String trustedPackages;
 
     @Bean
     public Map<String, Object> consumerConfigs() {
@@ -41,30 +41,52 @@ public class KafkaConfig {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
-        // Configurar o deserializador Protobuf
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer);
-        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, valueDeserializer);
-        props.put(ErrorHandlingDeserializer.VALUE_FUNCTION, valueDeserializer);
 
-        //Configurar valor específico
-        props.put(KafkaProtobufDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistry);
-        props.put(KafkaProtobufDeserializerConfig.SPECIFIC_PROTOBUF_VALUE_TYPE, DeleteAccountRequest.class.getName());
-        props.put(KafkaProtobufDeserializerConfig.SPECIFIC_PROTOBUF_KEY_TYPE, keyDeserializer);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
+
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, trustedPackages);
+
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        //props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
         return props;
     }
 
     @Bean
-    public ConsumerFactory<String, DeleteAccountRequest> consumerFactory() {
+    public Map<String, Object> webhookConsumerConfigs() {
+        Map<String, Object> props = consumerConfigs();
+
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, trustedPackages);
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, WebhookRequestDTO.class.getName());
+
+        return props;
+    }
+
+    @Bean
+    public ConsumerFactory<String, DeleteAccountRequest> deleteAccountConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfigs());
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, DeleteAccountRequest> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, DeleteAccountRequest> deleteAccountKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, DeleteAccountRequest> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+        factory.setConsumerFactory(deleteAccountConsumerFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, WebhookRequestDTO> webhookConsumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(webhookConsumerConfigs());
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, WebhookRequestDTO> webhookKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, WebhookRequestDTO> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(webhookConsumerFactory());
         return factory;
     }
 }

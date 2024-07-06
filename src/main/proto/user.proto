@@ -1,6 +1,6 @@
 syntax="proto3";
 
-import "src/main/proto/common.proto";
+import "common.proto";
 
 option java_package = "br.com.finsavior.grpc.user";
 option java_multiple_files = true;
