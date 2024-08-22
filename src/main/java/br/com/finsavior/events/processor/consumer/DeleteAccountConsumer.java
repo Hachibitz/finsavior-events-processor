@@ -1,6 +1,7 @@
 package br.com.finsavior.events.processor.consumer;
 
 import br.com.finsavior.events.processor.exception.DeleteAccountException;
+import br.com.finsavior.events.processor.model.dto.DeleteAccountRequestDTO;
 import br.com.finsavior.events.processor.service.UserService;
 import br.com.finsavior.grpc.user.DeleteAccountRequest;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class DeleteAccountConsumer {
     private final UserService userService;
 
     @KafkaHandler
-    public void deleteAccount (@NotNull DeleteAccountRequest message) throws Exception {
+    public void deleteAccount (@NotNull DeleteAccountRequestDTO message) throws Exception {
         log.info("Mensagem recebida do tópico: {}, mensagem: {}", "webhook-request", message);
         userService.deleteAccount(message);
     }

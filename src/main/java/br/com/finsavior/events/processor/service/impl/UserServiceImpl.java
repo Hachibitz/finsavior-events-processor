@@ -4,6 +4,7 @@ import br.com.finsavior.events.processor.exception.BusinessException;
 import br.com.finsavior.events.processor.exception.DeleteAccountException;
 import br.com.finsavior.events.processor.model.constant.Flag;
 import br.com.finsavior.events.processor.model.constant.PlanType;
+import br.com.finsavior.events.processor.model.dto.DeleteAccountRequestDTO;
 import br.com.finsavior.events.processor.model.dto.ExternalUserDTO;
 import br.com.finsavior.events.processor.model.entity.PlanChangeHistory;
 import br.com.finsavior.events.processor.model.entity.User;
@@ -44,13 +45,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteAccount(DeleteAccountRequest deleteAccountRequest) {
+    public void deleteAccount(DeleteAccountRequestDTO deleteAccountRequestDTO) {
+        DeleteAccountRequest deleteAccountRequest = DeleteAccountRequest.newBuilder()
+                .setUsername(deleteAccountRequestDTO.getUsername())
+                .setPassword(deleteAccountRequestDTO.getPassword())
+                .setConfirmation(deleteAccountRequestDTO.isConfirmation())
+                .build();
+
         try {
             DeleteAccountResponse deleteAccountResponse = userServiceBlockingStub.deleteAccount(deleteAccountRequest);
         } catch (StatusRuntimeException e) {
             log.error("method: {}, message: {} - {}, error: {}",
                     "deleteAccount", "Error deleting account",
-                    deleteAccountRequest.getUsername(),
+                    deleteAccountRequestDTO.getUsername(),
                     e.getStatus().getDescription());
 
             throw new DeleteAccountException(e.getStatus().getDescription());
