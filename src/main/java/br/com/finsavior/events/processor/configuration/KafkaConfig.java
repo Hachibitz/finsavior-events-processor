@@ -1,7 +1,7 @@
 package br.com.finsavior.events.processor.configuration;
 
+import br.com.finsavior.events.processor.model.dto.DeleteAccountRequestDTO;
 import br.com.finsavior.events.processor.model.dto.WebhookRequestDTO;
-import br.com.finsavior.grpc.user.DeleteAccountRequest;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -65,13 +65,13 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, DeleteAccountRequest> deleteAccountConsumerFactory() {
+    public ConsumerFactory<String, DeleteAccountRequestDTO> deleteAccountConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfigs());
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, DeleteAccountRequest> deleteAccountKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, DeleteAccountRequest> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, DeleteAccountRequestDTO> deleteAccountKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, DeleteAccountRequestDTO> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(deleteAccountConsumerFactory());
         return factory;
